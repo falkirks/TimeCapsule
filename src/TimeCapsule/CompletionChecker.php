@@ -6,16 +6,16 @@ use pocketmine\scheduler\PluginTask;
 class CompletionChecker extends PluginTask{
 	public function onRun($tick){
 		/* Cleanup Backups */
-		for ($i = 0; $i < count($this->p->backups); $i++) { 
-			if($this->getOwner()->backups[$i][0]->isCompleted() === true){
-				$this->getOwner()->backups[$i][1]->sendMessage("Backup completed.")
-				unset($this->p->backups[$i]);
+		foreach ($this->getOwner()->backups as $key => $backup) { 
+			if($backup[0]->isFinished() === true){
+				$backup[1]->sendMessage("Backup completed.");
+				unset($this->getOwner()->backups[$key]);
 			}
 		}
 		/* Cleanup Restore */
 		if($this->getOwner()->restore !== false){
-			if($this->getOwner()->restore->isCompleted() === true){
-				$this->getOwner()->restore[1]->sendMessage("Restore and reload complete...You may need to run /stop");
+			if($this->getOwner()->restore[0]->isFinished() === true){
+				$this->getOwner()->restore[1]->sendMessage("Restore complete...You may need to restart or reload");
 				$this->getOwner()->restore = false;
 			}
 		}
