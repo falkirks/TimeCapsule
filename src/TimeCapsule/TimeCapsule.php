@@ -26,14 +26,18 @@ class TimeCapsule extends PluginBase implements CommandExecutor {
   public function onCommand(CommandSender $sender, Command $cmd, $label, array $args) {
     switch($cmd->getName()) {
       case "backup":
-        $this->backups[] = new BackupTask();
+        $tsk = new BackupTask();
+        $this->getServer()->getScheduler()->scheduleAsyncTask($tsk);
+        $this->backups[] = array($tsk, $sender);
         $sender->sendMessage("Backup started...");
         return true;
         break;
       case "restore":
         if(isset($args[0])){
           if ($this->restore != false) {
-            $this->restore = new RestoreTask($args[0]);
+            $tsk = new RestoreTask($args[0]);
+            $this->getServer()->getScheduler()->scheduleAsyncTask($tsk);
+            $this->restore = array($tsk, $sender);
             $sender->sendMessage("Restore started...");
             return true;
           }
