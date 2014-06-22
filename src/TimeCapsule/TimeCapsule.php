@@ -16,14 +16,14 @@ use TimeCapsule\RestoreTask;
 use TimeCapsule\CompletionChecker;
 
 class TimeCapsule extends PluginBase implements CommandExecutor {
+  public $restore, $backups, $config;
   public function onEnable() {
-    //$this->getLogger()->info("TimeCapsule loaded!\n");
     @mkdir($this->getDataFolder());
     $this->config = new Config($this->getDataFolder()."/data.yml", Config::YAML, array(0,0));
     $this->backups = array();
     $this->restore = false;
     $this->getServer()->getScheduler()->scheduleRepeatingTask(new CompletionChecker($this), 20);
-
+    $this->getLogger()->info("TimeCapsule loaded!");
   }
   public function onCommand(CommandSender $sender, Command $cmd, $label, array $args) {
     switch($cmd->getName()) {
@@ -35,15 +35,16 @@ class TimeCapsule extends PluginBase implements CommandExecutor {
             if ($i == 0) {
               $sender->sendMessage("[TimeCapsule] No backups can be read, starting fresh.");
               $id = 1;
-              $data[0] = 0;
-              $data[1] = 0;
+              $this->config->set(0,0);
+              $this->config->set(1,0);
+              $this->config->save();
             }
             else {
               if (is_dir($this->getDataFolder() . "/" . $i)) {
                 console("[TimeCapsule] Found new backup directory at " . $i);
                 $id = $i + 1;
                 $this->config->set(0,$i);
-                $this->config->set(1,filemtime(FILE_PATH . "backups/" . $i . "/."));
+                $this->config->set(1,filemtime($this->getDataFolder() . "/" . $i . "/."));
               }
             }
           }
@@ -73,7 +74,7 @@ class TimeCapsule extends PluginBase implements CommandExecutor {
             }
           }
           else{
-            $sender->sendMessage("Restore currently in progress...");
+            $sender->sendMessage("Restore currently in progress. Please wait until it finishes.");
             return true;
           }
         }

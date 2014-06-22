@@ -20,7 +20,7 @@ class BackupTask extends AsyncTask{
 	    $dir = opendir($src); 
 	    @mkdir($dst,0755,true); 
 	    while(false !== ($file = readdir($dir))){ 
-	        if (( $file != '.' ) && ( $file != '..' ) && ($file != 'TimeCapsule')) { 
+	        if (( $file != '.' ) && ( $file != '..' ) && ($file != 'TimeCapsule') && ($file != 'bin') && ($file != ".git")) { 
 	            if (is_dir($src . '/' . $file)) { 
 	                $this->copyDir($src . '/' . $file,$dst . '/' . $file,$past . '/' . $file,$time);
 	            } 
