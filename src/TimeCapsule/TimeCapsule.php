@@ -4,25 +4,16 @@ namespace TimeCapsule;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
-use pocketmine\Server;
 use pocketmine\utils\Config;
-use pocketmine\utils\TextFormat;
-use pocketmine\level\position;
-
-use TimeCapsule\BackupTask;
-use TimeCapsule\RestoreTask;
-use TimeCapsule\CompletionChecker;
 
 class TimeCapsule extends PluginBase implements CommandExecutor {
   public $restore, $backups, $config;
   public function onEnable() {
     @mkdir($this->getDataFolder());
     $this->config = new Config($this->getDataFolder()."/data.yml", Config::YAML, array(0,0));
-    $this->backups = array();
+    $this->backups = [];
     $this->restore = false;
-    $this->getServer()->getScheduler()->scheduleRepeatingTask(new CompletionChecker($this), 20);
     $this->getLogger()->info("TimeCapsule loaded!");
   }
   public function onCommand(CommandSender $sender, Command $cmd, $label, array $args) {
@@ -41,7 +32,7 @@ class TimeCapsule extends PluginBase implements CommandExecutor {
             }
             else {
               if (is_dir($this->getDataFolder() . "/" . $i)) {
-                console("[TimeCapsule] Found new backup directory at " . $i);
+                $sender->sendMessage("[TimeCapsule] Found new backup directory at " . $i);
                 $id = $i + 1;
                 $this->config->set(0,$i);
                 $this->config->set(1,filemtime($this->getDataFolder() . "/" . $i . "/."));
@@ -49,9 +40,9 @@ class TimeCapsule extends PluginBase implements CommandExecutor {
             }
           }
         }
-        $tsk = new BackupTask($this->getServer()->getDataPath(), $this->getDataFolder() . "/" . $id, $this->getDataFolder() . "/" . $this->config->get(0), $this->config->get(1));
+        $tsk = new BackupTask($this->getServer()->getDataPath(), $this->getDataFolder() . "/" . $id, $this->getDataFolder() . "/" . $this->config->get(0), $this->config->get(1), count($this->backups));
         $this->getServer()->getScheduler()->scheduleAsyncTask($tsk);
-        $this->backups[] = array($tsk, $sender);
+        $this->backups[count($this->backups)] = array($tsk, $sender);
         $this->config->set(0,$id);
         $this->config->set(1,strtotime("now"));
         $this->config->save();
@@ -62,7 +53,7 @@ class TimeCapsule extends PluginBase implements CommandExecutor {
         if(isset($args[0])){
           if ($this->restore === false) {
             if(is_dir($this->getDataFolder() . "/" . $args[0])){
-              $tsk = new RestoreTask($this->getDataFolder() . "/" . $args[0], $this->getServer()->getDataPath());
+              $tsk = new RestoreTask($this->getDataFolder() . "/" . $args[0], $this->getServer()->getDataPath(), $sender);
               $this->getServer()->getScheduler()->scheduleAsyncTask($tsk);
               $this->restore = array($tsk, $sender);
               $sender->sendMessage("Restore started...");
@@ -84,7 +75,16 @@ class TimeCapsule extends PluginBase implements CommandExecutor {
         break;
     }
   }
-  public function onDisable() {    
-    $this->getLogger()->info("TimeCapsule unloading...");
+  public function backupCallback($id){
+      if(isset($this->backups[$id])){
+          $this->backups[$id][1]->sendMessage("Backup completed.");
+          unset($this->backups[$id]);
+      }
+  }
+  public function restoreCallback(){
+      if($this->restore !== false){
+          $this->restore[1]->sendMessage("Restore completed. Restart or reload may be needed.");
+          $this->restore = false;
+      }
   }
 }

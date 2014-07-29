@@ -1,13 +1,17 @@
 <?php
 namespace TimeCapsule;
+use pocketmine\command\CommandSender;
 use pocketmine\scheduler\AsyncTask;
+use pocketmine\Server;
 
 class RestoreTask extends AsyncTask{
 	public $p;
 	public $m;
-	public function __construct($path,$main){
+    public $user;
+	public function __construct($path, $main, CommandSender $user){
 		$this->p = $path;
 		$this->m = $main;
+        $this->user = $user;
 	}
 	public function onRun(){
 		$this->copyDir($this->p, $this->m);
@@ -27,4 +31,7 @@ class RestoreTask extends AsyncTask{
     	} 
     	closedir($dir); 
 	}
+    public function onCompletion(Server $server){
+        $server->getPluginManager()->getPlugin("TimeCapsule")->restoreCallback();
+    }
 }
