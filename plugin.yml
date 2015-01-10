@@ -4,16 +4,3 @@ version: 1.1
 author: Falk
 api: [1.0.0]
 load: POSTWORLD
-commands:
- ud:
-  permission: urbandict.search
-  description: Search Urban Dictionary
-  usage: /ud <TERM>
-permissions:
- urbandict:
-  default: op
-  description: Top UrbanDictionary permission
-  children:
-   urbandict.search:
-    default: true
-    description: Search Urban Dictionary
