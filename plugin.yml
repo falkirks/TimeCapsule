@@ -1,6 +1,26 @@
 name: TimeCapsule
 main: TimeCapsule\TimeCapsule
-version: 1.1
+version: 1.0
 author: Falk
 api: [1.0.0]
 load: POSTWORLD
+commands:
+ backup:
+  permission: timecapsule.backup
+  description: Create a new backup
+  usage: /backup
+ restore:
+  permission: timecapsule.restore
+  description: Add a new warp point
+  usage: /restore <ID>
+permissions:
+ timecapsule:
+  default: op
+  description: Top level TimeCapsule permission
+  children:
+   timecapsule.backup:
+    default: op
+    description: Create new backups
+   timecapsule.restore:
+    default: op
+    description: Restore to old backups
