@@ -1,7 +1,7 @@
 name: TimeCapsule
 main: TimeCapsule\TimeCapsule
 version: 1.0
-author: Falk
+author: Falkirks
 api: [1.0.0]
 load: POSTWORLD
 commands:
