@@ -1,0 +1,7 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/Falkirks/TimeCapsule
+branches:
+- master
+projects:
+  TimeCapsule:
+    path: ""
+...
